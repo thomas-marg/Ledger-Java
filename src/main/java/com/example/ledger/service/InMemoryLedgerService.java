@@ -3,12 +3,14 @@ package com.example.ledger.service;
 import com.example.ledger.model.Balance;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.model.TransactionType;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Service
 public class InMemoryLedgerService implements LedgerService{
 
     private final List<Transaction> transactions = new ArrayList<>();
