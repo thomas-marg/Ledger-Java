@@ -1,5 +1,6 @@
 package com.example.ledger.service;
 
+import com.example.ledger.exception.InsufficientBalanceException;
 import com.example.ledger.model.Balance;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.model.TransactionType;
@@ -23,7 +24,7 @@ public class InMemoryLedgerService implements LedgerService{
         }
 
         if (type == TransactionType.WITHDRAWAL && amount.compareTo(balance.getAmount()) > 0) {
-            throw new IllegalArgumentException("Insufficient balance for withdrawal.");
+            throw new InsufficientBalanceException("Insufficient balance for withdrawal.");
         }
 
         Transaction transaction = new Transaction(amount, type);
