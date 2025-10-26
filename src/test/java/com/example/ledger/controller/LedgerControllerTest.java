@@ -4,6 +4,7 @@ package com.example.ledger.controller;
 import com.example.ledger.TestUtils;
 import com.example.ledger.dto.BalanceResponse;
 import com.example.ledger.dto.TransactionRequest;
+import com.example.ledger.dto.TransactionResponse;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.model.TransactionType;
 import com.example.ledger.service.InMemoryLedgerService;
@@ -16,8 +17,10 @@ import org.springframework.http.ResponseEntity;
 
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 class LedgerControllerTest {
@@ -40,7 +43,7 @@ class LedgerControllerTest {
     void testValidDeposit() throws Exception {
         TransactionRequest request = loadRequest("valid_deposit.json");
 
-        ResponseEntity<Transaction> response = controller.recordTransaction(request);
+        ResponseEntity<TransactionResponse> response = controller.recordTransaction(request);
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(request.getAmount(), response.getBody().getAmount());
@@ -53,7 +56,7 @@ class LedgerControllerTest {
         TransactionRequest withdrawal = loadRequest("valid_withdrawal.json");
 
         controller.recordTransaction(deposit);  // Ensure balance exists
-        ResponseEntity<Transaction> response = controller.recordTransaction(withdrawal);
+        ResponseEntity<TransactionResponse> response = controller.recordTransaction(withdrawal);
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(withdrawal.getAmount(), response.getBody().getAmount());
@@ -85,5 +88,29 @@ class LedgerControllerTest {
 
         assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
         assertEquals(BigDecimal.ZERO, response.getBody().getBalance());
+    }
+
+    @Test
+    void testTransactionHistoryIsReturnedCorrectly() throws Exception {
+        // First add a deposit
+        TransactionRequest depositRequest = objectMapper.readValue(TestUtils.loadJson("valid_deposit.json"), TransactionRequest.class);
+        controller.recordTransaction(depositRequest);
+
+        // Then add a withdrawal
+        TransactionRequest withdrawalRequest = objectMapper.readValue(TestUtils.loadJson("valid_withdrawal.json"), TransactionRequest.class);
+        controller.recordTransaction(withdrawalRequest);
+
+        // Fetch history
+        ResponseEntity<List<TransactionResponse>> response = controller.getTransactionHistory();
+
+        // Assertions
+        assertEquals(200, response.getStatusCodeValue());
+        List<TransactionResponse> transactions = response.getBody();
+        assertNotNull(transactions);
+        assertEquals(2, transactions.size());
+
+        TransactionResponse first = transactions.get(0);
+        assertEquals(TransactionType.DEPOSIT, first.getType());
+        assertEquals(BigDecimal.valueOf(100), first.getAmount());
     }
 }
