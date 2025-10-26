@@ -2,6 +2,7 @@ package com.example.ledger.controller;
 
 
 import com.example.ledger.TestUtils;
+import com.example.ledger.dto.BalanceResponse;
 import com.example.ledger.dto.TransactionRequest;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.model.TransactionType;
@@ -10,6 +11,7 @@ import com.example.ledger.service.LedgerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 
@@ -56,5 +58,32 @@ class LedgerControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(withdrawal.getAmount(), response.getBody().getAmount());
         assertEquals(withdrawal.getType(), response.getBody().getType());
+    }
+
+    @Test
+    void testGetBalanceWithValidTransactions() throws Exception {
+        TransactionRequest deposit = objectMapper.readValue(TestUtils.loadJson("valid_deposit.json"), TransactionRequest.class);
+        TransactionRequest withdrawal = objectMapper.readValue(TestUtils.loadJson("valid_withdrawal.json"), TransactionRequest.class);
+
+        // Act - record transactions
+        controller.recordTransaction(deposit);
+        controller.recordTransaction(withdrawal);
+
+        // Call balance API
+        ResponseEntity<BalanceResponse> response = controller.getBalance();
+
+        // Assert
+        BigDecimal expectedBalance = deposit.getAmount().subtract(withdrawal.getAmount());
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(expectedBalance, response.getBody().getBalance());
+    }
+
+    @Test
+    void testGetBalanceWithNoTransactions() {
+        ResponseEntity<BalanceResponse> response = controller.getBalance();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(BigDecimal.ZERO, response.getBody().getBalance());
     }
 }
