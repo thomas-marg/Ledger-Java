@@ -3,6 +3,7 @@ package com.example.ledger.controller;
 import com.example.ledger.dto.TransactionRequest;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.service.LedgerService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class LedgerController {
     }
 
     @PostMapping("/transaction")
-    public ResponseEntity<Transaction> recordTransaction(@RequestBody TransactionRequest request) {
+    public ResponseEntity<Transaction> recordTransaction(@Valid @RequestBody TransactionRequest request) {
         Transaction transaction = ledgerService.recordTransaction(
                 request.getAmount(),
                 request.getType()
