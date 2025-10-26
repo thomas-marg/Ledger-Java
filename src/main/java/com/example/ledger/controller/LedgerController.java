@@ -1,14 +1,14 @@
 package com.example.ledger.controller;
 
+import com.example.ledger.dto.BalanceResponse;
 import com.example.ledger.dto.TransactionRequest;
 import com.example.ledger.model.Transaction;
 import com.example.ledger.service.LedgerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/ledger")
@@ -27,5 +27,11 @@ public class LedgerController {
                 request.getType()
         );
         return ResponseEntity.ok(transaction);
+    }
+
+    @GetMapping("/balance")
+    public ResponseEntity<BalanceResponse> getBalance() {
+        BigDecimal currentBalance = ledgerService.getCurrentBalance();
+        return ResponseEntity.ok(new BalanceResponse(currentBalance));
     }
 }
