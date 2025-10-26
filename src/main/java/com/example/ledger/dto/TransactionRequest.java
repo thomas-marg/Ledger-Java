@@ -15,6 +15,15 @@ public class TransactionRequest {
     @NotNull(message = "Amount is required")
     private BigDecimal amount;
 
+    public TransactionRequest(BigDecimal amount, TransactionType type) {
+        this.type = type;
+        this.amount = amount;
+    }
+
+    public TransactionRequest() {
+
+    }
+
     public TransactionType getType() {
         return type;
     }
@@ -30,4 +39,5 @@ public class TransactionRequest {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+
 }
