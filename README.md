@@ -1,4 +1,4 @@
-# 🏦 Ledger-Java
+# Ledger-Java
 
 A simple ledger API implementation built with **Spring Boot** that handles basic financial transactions (deposits, withdrawals), balance tracking, and transaction history.
 
